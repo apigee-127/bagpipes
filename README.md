@@ -364,9 +364,29 @@ Select the values of the object as an array.
 
 Make a call to a URL.
 
+config keys:
+
+* baseUrl (optional)
+
+input keys:
+
+* url    (optional: default = context.output)
+* method (optional: default = get) (get, post, put, delete, patch, etc.)
+* params (optional) key/value pairs
+* headers (optional) key/value pairs
+
+output:
+
+{
+  status: statusCode
+  headers: JSON string
+  body: JSON string
+}
+
+
 ###### usergrid
 
-Make usergrid calls.
+Make calls to Usergrid. Work in progress...
 
 
 #### <a name="UserFittings"></a>User Defined Fittings
@@ -383,7 +403,7 @@ values:
    name: customizeResponse
 ```
 
-Javascript implemention:
+Javascript implementation:
 
 A user fitting is a fitting defined in the user's fitting's directory. It exposes a creation function that accepts a
 fittingDefinition and the swagger-pipes configuration. This function is executed during parsing of the Swagger. Thus,
@@ -437,7 +457,9 @@ You can access Swagger APIs by simply loading that Swagger. A Swagger fitting ex
 
 #### <a name="NodeMachineFittings"></a>Node-machine fittings
 
-A node-machine is a self-documenting component format that we've adapted to the a127 (see [http://node-machine.org]()). You can use a node-machine just by using 'npm install' and declaring the fitting. The fitting definition expects a minimum of:
+A node-machine is a self-documenting component format that we've adapted to the a127 (see [http://node-machine.org]()).
+You can use a node-machine just by using 'npm install' and declaring the fitting. The fitting definition expects a
+minimum of:
 
 * **type**: 'node-machine'
 * **machinepack**: the name of the machinepack
@@ -448,4 +470,21 @@ A node-machine is a self-documenting component format that we've adapted to the 
    type: node-machine
    machinepack: machinepack-github
    machine: list-repos
+```
+
+#### <a name="ControllerFittings"></a>Controller fittings
+
+Controller fittings merely provide a call to one of the controllers you've defined in your /controllers directory
+for use with swagger-tools router. However, given that these controllers probably interact directly with the response
+and aren't designed for use within the Swagger Pipes system, proceed with extreme caution.
+
+* **type**: 'controller'
+* **controller**: the name of the controller file in your controllers directory
+* **function**: the exported function to call on the controller
+
+```
+ exampleControllerFitting:
+   type: controller
+   controller: my_module
+   function: someFunction
 ```
