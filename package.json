@@ -2,7 +2,7 @@
   "name": "swagger-pipes",
   "version": "0.0.1",
   "description": "Who needs code when you've got pipes? Plumbing with swag!",
-  "main": "lib/pipes.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "mocha test",
     "start": "node server.js"
