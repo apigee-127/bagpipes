@@ -14,6 +14,7 @@
 	* [User Defined Fittings](#UserFittings)
 	* [Swagger Fittings](#SwaggerFittings)
 	* [Node-Machine Fittings](#NodeMachineFittings)
+* [Debugging](#Debugging)
 
 ## What is "Swagger Pipes"?
 
@@ -488,3 +489,21 @@ and aren't designed for use within the Swagger Pipes system, proceed with extrem
    controller: my_module
    function: someFunction
 ```
+
+## <a name="Debugging"></a>Debugging
+
+Currently, debugging is limited to reading log entries and the debugger. However, there is a lot of information
+available to you by enabling the DEBUG log. By enabling the DEBUG=pipes log, you will be able to see the entire
+flow of the swagger-pipes system sent to the console:
+
+    DEBUG=pipes
+
+You can also emit the actual output from each step by enabling pipes:content:
+
+    DEBUG=pipes:content
+
+Finally, you can enable both the flow and content by using a wildcard:
+
+    DEBUG=pipes*
+
+Enjoy!
