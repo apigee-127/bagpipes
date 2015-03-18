@@ -326,6 +326,10 @@ Used for testing and will likely be removed, but evaluates provided javascript d
 
 Select the first element from an array.
 
+###### jspath: jspath
+
+Selects output using [json path syntax](https://www.npmjs.com/package/jspath).
+
 ###### omit: key | [keys]
 
 Omit the specified key or keys from an object.
