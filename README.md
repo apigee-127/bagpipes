@@ -4,17 +4,17 @@
 
 ** Quick Reference links: **
 
-* [Installation](#Installation)
-* [Pipes](#Pipes)
-	* [Parallel Execution](#ParallelExecution)
-	* [Context](#Context)
-	* [Error Handling](#ErrorHandling)
-* [Fittings](#Fittings)
-	* [System Fittings](#SystemFittings)
-	* [User Defined Fittings](#UserFittings)
-	* [Swagger Fittings](#SwaggerFittings)
-	* [Node-Machine Fittings](#NodeMachineFittings)
-* [Debugging](#Debugging)
+* [Installation](#installation)
+* [Pipes](#pipes)
+	* [Parallel Execution](#parallel-execution)
+	* [Context](#context)
+	* [Error Handling](#error-handling)
+* [Fittings](#fittings)
+	* [System Fittings](system-fittings)
+	* [User Defined Fittings](#user-defined-fittings)
+	* [Swagger Fittings](#swagger-fittings)
+	* [Node-Machine Fittings](#node-machine-fittings)
+* [Debugging](#debugging)
 
 ## What is "Swagger Pipes"?
 
@@ -141,7 +141,7 @@ to use - or to be returned to the client if it's the last fitting to execute.
 
 # Reference
 
-## <a name="Installation"></a>Installation
+## Installation
 
 Swagger Pipes provides connect middleware that depends on [swagger-tools](https://github.com/apigee-127/swagger-tools)
 metadata to be in place. If you're using [apigee-127](https://www.npmjs.com/package/apigee-127), this is already
@@ -171,7 +171,7 @@ function createSwaggerPipesMiddleware(config) {
 }
 ```
 
-## <a name="Pipes"></a>Pipes
+## Pipes
 
 A Pipe is just defined as an Array. It can be reference by it's key and can reference other pipes and fittings by
 their keys. Each step in a pipe may be one of the following:
@@ -184,7 +184,7 @@ If a fitting reference includes a value, that value will be emitted onto the out
 of the system fittings are able to operate solely on the output without any additional configuration - similar to a
 Unix pipe.
 
-### <a name="ParallelExecution"></a>Parallel Execution
+### Parallel Execution
 
 Generally, a pipe flows from top to bottom in serial manner. However, in some cases it is desirable to execute two
 pipes in parallel (for example, a mashup of two external APIs).
@@ -204,7 +204,7 @@ the same step, it will execute the getRestaurants and getWeather pipes concurren
 will be an object that looks like this: { restaurants: {...}, weather: {...} } where the values will be the output
 from the respective pipes.
 
-### <a name="Context"></a>Context
+### Context
 
 The context object that is passed through the pipe has the following properties that should be generally used by the
 fittings to accept input and deliver output via the pipe to other fittings or to the client:
@@ -236,13 +236,13 @@ directly to the response, you are bypassing the ability of later fittings to mod
 modify the response at all and it may cause errors.
 
 
-### <a name="ErrorHandling"></a>Error Handling
+### Error Handling
 
 By default, errors that occur in fittings will be sent to the client with a statusCode = 500 and the error message
 only (no stack trace). However, you may install custom error handlers in the pipe by specifying them using the system
 onError fitting (see [onError](#onError) in fittings section).
 
-## <a name="Fittings"></a>Fittings
+## Fittings
 
 All fittings may have the following values (all of which are optional):
 
@@ -304,15 +304,19 @@ operation that was called (name: 'subpath).
 
 ##### context
 
-Any key on the context object. (See [Context](#Context) for more information.)
+Any key on the context object. (See [Context](#context) for more information.)
 
 
-#### <a name="SystemFittings"></a>System Fittings
+#### System Fittings
 
 There are 2 basic types of system fittings: Internal fittings that just modify output in a flow and those that are
 callouts to other systems. These are listed below by category:
 
 ##### Internal Fittings
+
+###### amend: input
+
+Amend the pipe output by copying the fields from input. Overrides output. Input and output must be objects.
 
 ###### emit: input
 
@@ -329,6 +333,16 @@ Select the first element from an array.
 ###### jspath: jspath
 
 Selects output using [json path syntax](https://www.npmjs.com/package/jspath).
+
+###### memo: key
+
+Saves the current context.output value to context[key]. Can be later retrieved via:
+
+```
+emit:
+  name: key
+  in: context
+```
 
 ###### omit: key | [keys]
 
@@ -394,7 +408,7 @@ output:
 Make calls to Usergrid. Work in progress...
 
 
-#### <a name="UserFittings"></a>User Defined Fittings
+#### User Defined Fittings
 
 The user fitting is a custom function you can write and place in the fittings directory. It requires the following
 values:
@@ -447,7 +461,7 @@ module.exports = function create(fittingDef, config) {
 };
 ```
 
-#### <a name="SwaggerFittings"></a>Swagger fittings
+#### Swagger fittings
 
 You can access Swagger APIs by simply loading that Swagger. A Swagger fitting expects this:
 
@@ -460,7 +474,7 @@ You can access Swagger APIs by simply loading that Swagger. A Swagger fitting ex
    url: http://petstore.swagger.io/v2/swagger.json
 ```
 
-#### <a name="NodeMachineFittings"></a>Node-machine fittings
+#### Node-machine fittings
 
 A node-machine is a self-documenting component format that we've adapted to the a127 (see [http://node-machine.org]()).
 You can use a node-machine just by using 'npm install' and declaring the fitting. The fitting definition expects a
@@ -477,7 +491,7 @@ minimum of:
    machine: list-repos
 ```
 
-#### <a name="ControllerFittings"></a>Controller fittings
+#### Controller fittings
 
 Controller fittings merely provide a call to one of the controllers you've defined in your /controllers directory
 for use with swagger-tools router. However, given that these controllers probably interact directly with the response
@@ -494,7 +508,7 @@ and aren't designed for use within the Swagger Pipes system, proceed with extrem
    function: someFunction
 ```
 
-## <a name="Debugging"></a>Debugging
+## Debugging
 
 Currently, debugging is limited to reading log entries and the debugger. However, there is a lot of information
 available to you by enabling the DEBUG log. By enabling the DEBUG=pipes log, you will be able to see the entire
