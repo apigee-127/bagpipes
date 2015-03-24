@@ -1,6 +1,6 @@
 {
   "name": "swagger-pipes",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Who needs code when you've got pipes? Plumbing with swag!",
   "main": "lib/index.js",
   "scripts": {
