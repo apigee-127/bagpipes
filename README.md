@@ -163,9 +163,9 @@ function createSwaggerPipesMiddleware(config) {
   var pipesDefs = magic.swaggerObject['x-swagger-pipes'];
   var path = require('path');
   var pipesConfig = {
-    userFittingsDir: path.resolve(__dirname, 'api/fittings'),
-    userViewsDir: path.resolve(__dirname, 'api/fittings'),
-    userControllersDir: path.resolve(__dirname, 'api/controllers'
+    userFittingsDirs: [ path.resolve(__dirname, 'api/fittings') ],
+    userViewsDirs: [ path.resolve(__dirname, 'api/fittings') ],
+    userControllersDirs: [ path.resolve(__dirname, 'api/controllers' ]
   };
   return swaggerPipes.create(pipesDefs, pipesConfig).connectMiddleware();
 }
@@ -173,7 +173,7 @@ function createSwaggerPipesMiddleware(config) {
 
 ## Pipes
 
-A Pipe is just defined as an Array. It can be reference by it's key and can reference other pipes and fittings by
+A Pipe is just defined as an Array. It can be reference by its key and can reference other pipes and fittings by
 their keys. Each step in a pipe may be one of the following:
 
 1. A pipe name
