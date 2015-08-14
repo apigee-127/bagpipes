@@ -1,5 +1,7 @@
 # Swagger Pipes
 
+[![Join the chat at https://gitter.im/apigee-127/swagger-pipes](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/apigee-127/swagger-pipes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ### NOTE: THIS IS PRE-RELEASE SOFTWARE - SUBJECT TO CHANGE ###
 
 ** Quick Reference links: **
