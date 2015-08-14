@@ -15,6 +15,7 @@
 	* [Swagger Fittings](#swagger-fittings)
 	* [Node-Machine Fittings](#node-machine-fittings)
 * [Debugging](#debugging)
+* [Change Log](#change-log)
 
 ## What is "Swagger Pipes"?
 
@@ -516,12 +517,25 @@ flow of the swagger-pipes system sent to the console:
 
     DEBUG=pipes
 
+You can get more debug information from the fittings with:
+
+    DEBUG=pipes:fittings
+
 You can also emit the actual output from each step by enabling pipes:content:
 
     DEBUG=pipes:content
 
-Finally, you can enable both the flow and content by using a wildcard:
+Finally, you can enable all the pipes debugging by using a wildcard:
 
     DEBUG=pipes*
+
+## Change Log
+
+* 0.1.0 
+  * Breaking changes
+    * pipesConfig directories (userFittingsDirs, userViewsDirs, userControllersDirs) are now all arrays
+    * context.headers is now an object (key-value pairs) instead of an array
+
+
 
 Enjoy!
