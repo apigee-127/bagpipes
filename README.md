@@ -1,6 +1,4 @@
-# Swagger Pipes
-
-[![Join the chat at https://gitter.im/apigee-127/swagger-pipes](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/apigee-127/swagger-pipes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# Bagpipes
 
 ### NOTE: THIS IS PRE-RELEASE SOFTWARE - SUBJECT TO CHANGE ###
 
@@ -19,9 +17,9 @@
 * [Debugging](#debugging)
 * [Change Log](#change-log)
 
-## What is "Swagger Pipes"?
+## What is Bagpipes?
 
-Swagger Pipes was developed as a way to enable API flows and mashups to be created declaratively in Swagger
+Bagpipes was developed as a way to enable API flows and mashups to be created declaratively in YAML
 without writing code. It works a lot like functional programming... there's no global state, data just gets
 passed from one function to the next down the line until we're done.
 
@@ -34,8 +32,7 @@ could simply define this flow:
    input:
      url: http://maps.googleapis.com/maps/api/geocode/json?sensor=true
      params:
-       address:                # name defaults to key (ie. address)
-         in: parameters
+       address: .request.parameters.address.value[0]
 
  getAddressLocation:
    - google_geocode            # call the fitting defined in this swagger
@@ -47,29 +44,28 @@ could simply define this flow:
 ```
 
 But that's just a quick example, you can do much, much more... including filtering, error handling, and even
-parallel mashup requests to multiple services.
+parallel handling like mashup HTTP requests to multiple services.
 
-To better understand how a Swagger Pipe fits into the flow, note that before Swagger Pipes, an API request to
- a swagger-tools based API provider might be processed like this:
+## Getting started
 
-1. Annotated by swagger-metadata
-2. Security checked by swagger-security / Volos
-3. Validated by swagger-validator
-4. Volos services (cache, quota, etc.) are applied
-5. Routed by swagger-router
-6. User writes some custom code here.
-7. The result is sent back to the client
+You can get started with just a bit of code like this....
 
-In the case of Swagger Pipes, we merely substitute a pipe where the user controller used to be. So step #6 can
-be viewed as broken out like this:
+```
+var fs = require('fs');
+var bagpipes = require('bagpipes');
+var yaml = require('js-yaml');
 
-1. The client request is adapted onto the pipe
-2. An error handler pipe may be specified
-3. Pipe sections (and fittings) are invoked in turn
-4. The output is adapted back onto the main response line
+var pipesDefs = yaml.safeLoad(fs.readFileSync('/myDefinitionsFile.yaml'));
 
-So each section of pipe may include both references to other pipes and references to pipe fittings and these
-sections are merely chained together and invoked in turn by Swagger Pipes.
+// these are optional
+var pipesConfig = {
+  userFittingsDirs: [ '/myFittings' ],
+  userViewsDirs: [ '/myMustacheTemplates' ]
+};
+var pipes = bagpipes.create(pipesDefs, pipesConfig);
+
+pipes.getPipe('My Cool Pipe').play();
+```
 
 ## Fittings
 
@@ -95,21 +91,21 @@ Now, we'll create a pipe that just retrieves the first name. In the definition b
 The "first" fitting selects the first element of an array passed in. The "path" fitting selects the "user" attribute
  from the object passed on by the first fitting. Thus, the result from our example is "Scott".
 
-Or, say we want to get all the names as an array. We could simply do it like this:
+Or, say we want to get all the names from our data as an array. We could simply do it like this:
 
 ```
  getUserNames:
    - pick: name
 ```
 
-Obivously, these are trivial examples, but you can create pipes as long and as complex as you wish. In fact, you can
+Obviously, these are trivial examples, but you can create pipes as long and as complex as you wish. In fact, you can
 even write your own fittings... but we're getting ahead of ourselves.
 
 ### Fitting Definition
 
 When you want to use a fitting, you have 2 options:
 
-1. A system or user fitting with zero or a single input can be defined in-line, as we have shown above.
+1. A system or user fitting with zero or one input can be defined in-line, as we have shown above.
 2. A fitting with configuration or more complex inputs may need to be defined before use.
 
 Let's look at the 2nd type. Here's an example of a fitting that calls out to an API with a  URL that looks like
@@ -119,16 +115,13 @@ course, we'll want to make the address dynamic. This requires a a little bit of 
 
 ```
  geocode:
-   type: system
    name: http
    input:
      operation: get
      url: http://maps.googleapis.com/maps/api/geocode/json
      params:
        sensor: true
-       address:
-         name: address
-         in: output
+       address: .output.address[0]
 ```
 
 As you can see above, we've give our fitting a name ("geocode") and specified which type of fitting we're creating
@@ -144,39 +137,9 @@ to use - or to be returned to the client if it's the last fitting to execute.
 
 # Reference
 
-## Installation
+## Pipe
 
-Swagger Pipes provides connect middleware that depends on [swagger-tools](https://github.com/apigee-127/swagger-tools)
-metadata to be in place. If you're using [apigee-127](https://www.npmjs.com/package/apigee-127), this is already
-happening for you. So just `npm install swagger-pipes --save` in your project and add a little code to your app.js.
-
-1. Inside the a127-magic init block in app.js, after `app.use(a127.middleware(config));` add:
-
-```
-app.use(createSwaggerPipesMiddleware(config));
-```
-
-2. At the end of app.js, add:
-
-```
-function createSwaggerPipesMiddleware(config) {
-
-  var swaggerPipes = require('swagger-pipes');
-  var magic = config['a127.magic'];
-  var pipesDefs = magic.swaggerObject['x-swagger-pipes'];
-  var path = require('path');
-  var pipesConfig = {
-    userFittingsDirs: [ path.resolve(__dirname, 'api/fittings') ],
-    userViewsDirs: [ path.resolve(__dirname, 'api/fittings') ],
-    userControllersDirs: [ path.resolve(__dirname, 'api/controllers' ]
-  };
-  return swaggerPipes.create(pipesDefs, pipesConfig).connectMiddleware();
-}
-```
-
-## Pipes
-
-A Pipe is just defined as an Array. It can be reference by its key and can reference other pipes and fittings by
+A Pipe is just defined in YAML as an Array. It can be reference by its key and can reference other pipes and fittings by
 their keys. Each step in a pipe may be one of the following:
 
 1. A pipe name
@@ -213,57 +176,46 @@ The context object that is passed through the pipe has the following properties 
 fittings to accept input and deliver output via the pipe to other fittings or to the client:
 
 * **input**: the input defined in the fitting definition (string, number, object, array)
-* **statusCode**: status to be delivered to the client
-* **headers**: headers to be delivered to the client
 * **output**: output to be delivered to the next fitting or client
 
 In addition, the context has the following properties that should not be modified - and, in general, you shouldn't
 need to access them at all:
 
-* **request**: the http request from the client
-* **response**: the http response to be sent to the client
-* **_errorHandler**: the keys and values as defined in the fitting's inputs definition
-* **_finish**: used by connect middleware to return data to the client
+* **_errorHandler**: the pipe played if an error occurs in the pipe 
+* **_finish**: a final fitting run after the pipe is finished (error or not) 
 
-Finally, the context object will contain any properties that you've assigned to it via the 'output' option on your
-fitting definition.
+Finally, the context object itself will contain any properties that you've assigned to it via the 'output' option on 
+your fitting definition.
 
 Notes:
 
 The context object is extensible as well. The names listed above as well as any name starting with '_' should be
-considered reserved, but you may assign other additional properties to the object should you need to for communication
-between fittings.
-
-When implementing a fitting, **strongly** prefer to emit content to the callback - not to the response. If you write
-directly to the response, you are bypassing the ability of later fittings to modify the content or to potentially
-modify the response at all and it may cause errors.
-
+considered reserved, but you may assign other additional properties to the context should you need it for communication
+between fittings (see also the [memo](#memo) fitting).
 
 ### Error Handling
 
-By default, errors that occur in fittings will be sent to the client with a statusCode = 500 and the error message
-only (no stack trace). However, you may install custom error handlers in the pipe by specifying them using the system
-onError fitting (see [onError](#onError) in fittings section).
+You may install a custom error handler pipe by specifying them using the system [onError](#onError) fitting.
 
 ## Fittings
 
 All fittings may have the following values (all of which are optional):
 
 * **type**: one of: system, user, swagger, node-machine
-* **name**: the name of the fitting of the type specified (note: not the Swagger reference)
+* **name**: the name of the fitting of the type specified
 * **config**: static values passed to the fitting during construction
 * **input**: dynamic values passed to the fitting during execution
 * **output**: The name of the context key to which the output value is assigned
 
 #### Type
 
-If type is omitted (as it must be for in-line useage), the swagger-pipes will first check the user fittings then the
+If type is omitted (as it must be for in-line usage), Bagpipes will first check the user fittings then the
 system fittings for the name and use the first fitting found. Thus be aware that if you define a fitting with the
 same name as a system one, your fitting will override it.
 
 #### Input
 
-The **input** may be a hash, array, or constant. The value or subvalues of the input is defined as either:
+The **input** may be a hash, array, or constant. The value or sub-values of the input is defined as either:
 
 * a constant string or number value
 * a **reference** to a value
@@ -272,42 +224,14 @@ A **reference** is a value populated either from data on the request or from the
 pipe. It is defined like so:
 
 ```
- key:
-   name: the name of the variable to pick (use '*' to pick the entire object)
-   in: (optional, default = output) the object to retrieve the value from
-   default: (optional) value to use when the referenced value is undefined
+ key:            # the variable name (key) on context.input to which the value is assigned
+   path: ''      # the variable to pick from context using [json path syntax](https://www.npmjs.com/package/jspath)
+   default: ''   # (optional) value to assign if the referenced value is undefined
 ```
 
-Valid "in" object names:
+Note: If there is no input definition, input will be assigned to the prior fitting's output. 
 
-##### parameters
-
-Parameters declared on the Swagger path or operation
-
-##### body | form | formData
-
-Field names in the body (body must have been parsed)
-
-##### header
-
-Header values. Names are lowercased.
-
-##### query
-
-Query parameters.
-
-##### output
-
-Output from previous fitting. Used as default source.
-
-##### path
-
-The path of the URL. This grants access to the full path (name: '*' or 'path) or to the subpath of the Swagger
-operation that was called (name: 'subpath).
-
-##### context
-
-Any key on the context object. (See [Context](#context) for more information.)
+See also [Context](#context) for more information.
 
 
 #### System Fittings
@@ -335,7 +259,7 @@ Select the first element from an array.
 
 ###### jspath: jspath
 
-Selects output using [json path syntax](https://www.npmjs.com/package/jspath).
+Selects output using [json path](https://www.npmjs.com/package/jspath) syntax.
 
 ###### memo: key
 
@@ -347,38 +271,38 @@ emit:
   in: context
 ```
 
-###### omit: key | [keys]
+###### omit: key | [ keys ]
 
 Omit the specified key or keys from an object.
 
-###### <a name="onError"></a>onError: pipename
+###### onError: pipename
 
 In case of error, redirect the flow to the specified pipe.
 
-###### parallel: [pipenames]
+###### parallel: [ pipenames ]
 
 Run multiple pipe flows concurrently. Generally not used directly (use shorthand syntax on pipe).
 
 ###### parse: json
 
-Parses a String. Currently must only be 'json'.
+Parses a String. Currently input must be 'json'.
 
 ###### path: path
 
-Selects an element from an object by dot-delemited keys.
+Selects an element from an object by dot-delimited keys.
 
-###### pick: key | [keys]
+###### pick: key | [ keys ]
 
 Selects only the specified key or keys from an object.
 
 ###### render: string | @filename
 
-Render the object using a mustache template specified as the string or loaded from the filename in the user fittings
+Render the object using a mustache template specified as the string or loaded from the filename in the user view
 directory.
 
 ###### values
 
-Select the values of the object as an array.
+Select the values of an object as an array.
 
 ##### Callout Fittings
 
@@ -406,30 +330,23 @@ output:
 }
 
 
-###### usergrid
-
-Make calls to Usergrid. Work in progress...
-
-
 #### User Defined Fittings
 
 The user fitting is a custom function you can write and place in the fittings directory. It requires the following
 values:
 
-* **type**: 'user'
 * **name**: the javascript module name in the 'fittings' folder
 
 ```
  exampleUserFitting:
-   type: user
    name: customizeResponse
 ```
 
 Javascript implementation:
 
-A user fitting is a fitting defined in the user's fitting's directory. It exposes a creation function that accepts a
-fittingDefinition and the swagger-pipes configuration. This function is executed during parsing of the Swagger. Thus,
-it should access the fittingDef.config (if any) and create any static resources at this time.
+A user fitting is a fitting defined in the user's fittings directory. It exposes a creation function that accepts a
+fittingDefinition and the swagger-pipes configuration. This function is executed during parsing. Thus, it should access 
+the fittingDef.config (if any) and create any static resources at this time.
 
 The creation function returns an execution function that will called during pipe flows. This function accepts a
 context object and a standard javascript asynchronous callback. When executed, this function should perform its
@@ -440,7 +357,7 @@ will query Yelp for businesses near a location with an input of { latitude: n, l
 var Yelp = require('yelp');
 var util = require('util');
 
-module.exports = function create(fittingDef, config) {
+module.exports = function create(fittingDef, bagpipes) {
 
   var yelp = Yelp.createClient(fittingDef.config);
 
@@ -496,9 +413,11 @@ minimum of:
 
 #### Controller fittings
 
+# TODO: CHANGE
+
 Controller fittings merely provide a call to one of the controllers you've defined in your /controllers directory
 for use with swagger-tools router. However, given that these controllers probably interact directly with the response
-and aren't designed for use within the Swagger Pipes system, proceed with extreme caution.
+and aren't designed for use within the Bagpipes system, proceed with extreme caution.
 
 * **type**: 'controller'
 * **controller**: the name of the controller file in your controllers directory
@@ -532,11 +451,6 @@ Finally, you can enable all the pipes debugging by using a wildcard:
     DEBUG=pipes*
 
 ## Change Log
-
-* 0.1.0 
-  * Breaking changes
-    * pipesConfig directories (userFittingsDirs, userViewsDirs, userControllersDirs) are now all arrays
-    * context.headers is now an object (key-value pairs) instead of an array
 
 
 

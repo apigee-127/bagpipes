@@ -1,7 +1,7 @@
 {
-  "name": "swagger-pipes",
-  "version": "0.1.1",
-  "description": "Who needs code when you've got pipes? Plumbing with swag!",
+  "name": "bagpipes",
+  "version": "0.0.1",
+  "description": "Less code, more flow. Let's dance!",
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha test",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/apigee-127/swagger-pipes.git"
+    "url": "https://github.com/apigee-127/bagpipes.git"
   },
   "keywords": [
     "swagger",
@@ -19,20 +19,20 @@
   "author": "Scott Ganyo <sganyo@apigee.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/apigee-127/swagger-pipes/issues"
+    "url": "https://github.com/apigee-127/bagpipes/issues"
   },
-  "homepage": "https://github.com/apigee-127/swagger-pipes",
+  "homepage": "https://github.com/apigee-127/bagpipes",
   "dependencies": {
-    "async": "^0.9.0",
+    "async": "^1.4.2",
     "debug": "^2.1.2",
     "jspath": "^0.3.1",
     "lodash": "^3.5.0",
-    "mustache": "^1.1.0",
-    "pipeworks": "^1.3.0",
-    "usergrid-objects": "0.0.11"
+    "machinepack-http": "^2.3.0",
+    "mustache": "^2.1.3",
+    "pipeworks": "^1.3.0"
   },
   "devDependencies": {
-    "should": "^5.0.1",
-    "supertest": "^0.15.0"
+    "should": "^7.0.4",
+    "supertest": "^1.1.0"
   }
 }
