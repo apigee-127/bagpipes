@@ -28,7 +28,7 @@ passed from one function to the next down the line until we're done.
 For example, to expose an API to get the latitude and longitude of an address using Google's Geocode API, one
 could simply define this flow:
 
-```
+```yaml
  google_geocode:
    name: http                  # system fitting (type is optional)
    input:
@@ -78,7 +78,7 @@ what a step actually accomplishes.
 
 Let's take a very simple example: Say we have some data that looks like this:
 
-```
+```js
 [ { "name": "Scott", "city": "Los Angeles" }
   { "name": "Jeff", "city": "San Francisco" } ]
 ```
@@ -86,7 +86,7 @@ Let's take a very simple example: Say we have some data that looks like this:
 Now, we'll create a pipe that just retrieves the first name. In the definition below, we've defined a pipe called
 "getFirstUserName" that consists of a couple of system-provided fittings:
 
-```
+```yaml
  getFirstUserName:
    - first
    - path: name
@@ -97,7 +97,7 @@ The "first" fitting selects the first element of an array passed in. The "path" 
 
 Or, say we want to get all the names as an array. We could simply do it like this:
 
-```
+```yaml
  getUserNames:
    - pick: name
 ```
@@ -117,7 +117,7 @@ something like this: http://maps.googleapis.com/maps/api/geocode/json?sensor=tru
 course, we'll want to make the address dynamic. This requires a a little bit of configuration: We need to tell the
 "http" fitting the URL, the operation, and what parameters to use (and how to get them):
 
-```
+```yaml
  geocode:
    type: system
    name: http
@@ -158,7 +158,7 @@ app.use(createSwaggerPipesMiddleware(config));
 
 2. At the end of app.js, add:
 
-```
+```js
 function createSwaggerPipesMiddleware(config) {
 
   var swaggerPipes = require('swagger-pipes');
@@ -195,7 +195,7 @@ pipes in parallel (for example, a mashup of two external APIs).
 Parallel execution of pipes can be done by using key/value pairs on the pipe in place of a single step. The output
 from each pipe will be assigned to the key associated with it. It's probably easiest to explain by example:
 
-```
+```yaml
 getRestaurantsAndWeather:
   - getAddressLocation
   - restaurants: getRestaurants
@@ -271,7 +271,7 @@ The **input** may be a hash, array, or constant. The value or subvalues of the i
 A **reference** is a value populated either from data on the request or from the output of previous fittings on the
 pipe. It is defined like so:
 
-```
+```yaml
  key:
    name: the name of the variable to pick (use '*' to pick the entire object)
    in: (optional, default = output) the object to retrieve the value from
@@ -341,7 +341,7 @@ Selects output using [json path syntax](https://www.npmjs.com/package/jspath).
 
 Saves the current context.output value to context[key]. Can be later retrieved via:
 
-```
+```yaml
 emit:
   name: key
   in: context
@@ -436,7 +436,7 @@ context object and a standard javascript asynchronous callback. When executed, t
 intended function and then call the callback function with (error, response) when complete. Here's an example that
 will query Yelp for businesses near a location with an input of { latitude: n, longitude: n }:
 
-```
+```js
 var Yelp = require('yelp');
 var util = require('util');
 
