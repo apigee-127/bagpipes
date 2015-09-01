@@ -48,24 +48,35 @@ parallel handling like mashup HTTP requests to multiple services.
 
 ## Getting started
 
-You can get started with just a bit of code like this....
+Here's a very simple "Hello, World" example:
 
 ```
-var fs = require('fs');
 var bagpipes = require('bagpipes');
-var yaml = require('js-yaml');
 
-var pipesDefs = yaml.safeLoad(fs.readFileSync('/myDefinitionsFile.yaml'));
-
-// these are optional
-var pipesConfig = {
-  userFittingsDirs: [ '/myFittings' ],
-  userViewsDirs: [ '/myMustacheTemplates' ]
+var pipesDef =  {
+  MyPipe: [
+    { emit: 'Hello, World!' }
+  ]
 };
-var pipes = bagpipes.create(pipesDefs, pipesConfig);
 
-pipes.getPipe('My Cool Pipe').play();
+var pipesConfig = {};
+var pipes = bagpipes.create(pipesDef, pipesConfig);
+var pipe = pipes.getPipe('MyPipe');
+
+var context = {};
+pipes.play(pipe, context);
+
+console.log(context.output);
 ```
+
+That said, you'll likely load your pipe definitions from a file something like this:
+
+```
+var yaml = require('js-yaml');
+var pipesDefs = yaml.safeLoad(fs.readFileSync('whatever.yaml'));
+```
+
+Have fun!
 
 ## Fittings
 
@@ -413,7 +424,7 @@ minimum of:
 
 #### Controller fittings
 
-# TODO: CHANGE
+#### TODO: CHANGE
 
 Controller fittings merely provide a call to one of the controllers you've defined in your /controllers directory
 for use with swagger-tools router. However, given that these controllers probably interact directly with the response
