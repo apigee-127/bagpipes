@@ -12,28 +12,28 @@
 * [Fittings](#fittings)
 	* [System Fittings](#system-fittings)
 	* [User Defined Fittings](#user-defined-fittings)
-	* [Swagger Fittings](#swagger-fittings)
-	* [Node-Machine Fittings](#node-machine-fittings)
 * [Debugging](#debugging)
 * [Change Log](#change-log)
 
 ## What is Bagpipes?
 
-Bagpipes was developed as a way to enable API flows and mashups to be created declaratively in YAML
-without writing code. It works a lot like functional programming... there's no global state, data just gets
-passed from one function to the next down the line until we're done.
+Bagpipes was developed as a way to enable API flows and mashups to be created declaratively in YAML (or JSON)
+without writing code. It works a lot like functional programming... there's no global state, data is just
+passed from one function to the next down the line until we're done. (Similar to connect middleware.)
 
 For example, to expose an API to get the latitude and longitude of an address using Google's Geocode API, one
-could simply define this flow:
+could simply define a flow that looks like this:
 
-```
+```yaml
+ # 1. Define a http callout we'll use in our pipe
  google_geocode:
-   name: http                  # system fitting (type is optional)
+   name: http
    input:
-     url: http://maps.googleapis.com/maps/api/geocode/json?sensor=true
+     url: http://maps.googleapis.com/maps/api/geocode/json?sensor=true  
      params:
        address: .request.parameters.address.value[0]
 
+ # 2. Defined the pipe flow we'll play
  getAddressLocation:
    - google_geocode            # call the fitting defined in this swagger
    - path: body                # system fitting: get body from output
@@ -48,20 +48,20 @@ parallel handling like mashup HTTP requests to multiple services.
 
 ## Getting started
 
-Here's a very simple "Hello, World" example:
+Here's a simple, self-contained "Hello, World" example you can run:
 
-```
+```js
 var bagpipes = require('bagpipes');
 
-var pipesDef =  {
-  MyPipe: [
+var pipesDefs =  {
+  HelloWorld: [
     { emit: 'Hello, World!' }
   ]
 };
 
 var pipesConfig = {};
-var pipes = bagpipes.create(pipesDef, pipesConfig);
-var pipe = pipes.getPipe('MyPipe');
+var pipes = bagpipes.create(pipesDefs, pipesConfig);
+var pipe = pipes.getPipe('HelloWorld');
 
 var context = {};
 pipes.play(pipe, context);
@@ -69,23 +69,38 @@ pipes.play(pipe, context);
 console.log(context.output);
 ```
 
-That said, you'll likely load your pipe definitions from a file something like this:
+As you can see, the pipe in the hello world above is defined programmatically. This is perfectly ok, but 
+in general, you'll probably want load your pipe definitions from a YAML file something like this:
 
+```yaml
+HelloWorld:
+  - emit: 'Hello, World!'
 ```
+
+```js
+var bagpipes = require('bagpipes');
 var yaml = require('js-yaml');
-var pipesDefs = yaml.safeLoad(fs.readFileSync('whatever.yaml'));
+
+var pipesDefs = yaml.safeLoad(fs.readFileSync('HelloWorld.yaml'));
+var pipes = bagpipes.create(pipesDefs, pipesConfig);
+var pipe = pipes.getPipe('HelloWorld');
+
+var context = {};
+pipes.play(pipe, context);
+
+console.log(context.output);
 ```
 
-Have fun!
+Either way, have fun!
 
 ## Fittings
 
 So what are these things called "fittings"? Well, simply, if a pipe is a list of steps, a fitting describes
-what a step actually accomplishes.
+what a single step actually accomplishes.
 
 Let's take a very simple example: Say we have some data that looks like this:
 
-```
+```js
 [ { "name": "Scott", "city": "Los Angeles" }
   { "name": "Jeff", "city": "San Francisco" } ]
 ```
@@ -93,7 +108,7 @@ Let's take a very simple example: Say we have some data that looks like this:
 Now, we'll create a pipe that just retrieves the first name. In the definition below, we've defined a pipe called
 "getFirstUserName" that consists of a couple of system-provided fittings:
 
-```
+```yaml
  getFirstUserName:
    - first
    - path: name
@@ -104,17 +119,17 @@ The "first" fitting selects the first element of an array passed in. The "path" 
 
 Or, say we want to get all the names from our data as an array. We could simply do it like this:
 
-```
+```yaml
  getUserNames:
    - pick: name
 ```
 
 Obviously, these are trivial examples, but you can create pipes as long and as complex as you wish. In fact, you can
-even write your own fittings... but we're getting ahead of ourselves.
+even write your own special-purpose fittings. We'll get to that [later](#user-defined-fittings).
 
 ### Fitting Definition
 
-When you want to use a fitting, you have 2 options:
+When you want to use a fitting in your pipe, you have 2 options:
 
 1. A system or user fitting with zero or one input can be defined in-line, as we have shown above.
 2. A fitting with configuration or more complex inputs may need to be defined before use.
@@ -124,7 +139,7 @@ something like this: http://maps.googleapis.com/maps/api/geocode/json?sensor=tru
 course, we'll want to make the address dynamic. This requires a a little bit of configuration: We need to tell the
 "http" fitting the URL, the operation, and what parameters to use (and how to get them):
 
-```
+```yaml
  geocode:
    name: http
    input:
@@ -169,7 +184,7 @@ pipes in parallel (for example, a mashup of two external APIs).
 Parallel execution of pipes can be done by using key/value pairs on the pipe in place of a single step. The output
 from each pipe will be assigned to the key associated with it. It's probably easiest to explain by example:
 
-```
+```yaml
 getRestaurantsAndWeather:
   - getAddressLocation
   - restaurants: getRestaurants
@@ -193,7 +208,7 @@ In addition, the context has the following properties that should not be modifie
 need to access them at all:
 
 * **_errorHandler**: the pipe played if an error occurs in the pipe 
-* **_finish**: a final fitting run after the pipe is finished (error or not) 
+* **_finish**: a final fitting or pipe run once the pipe has finished (error or not) 
 
 Finally, the context object itself will contain any properties that you've assigned to it via the 'output' option on 
 your fitting definition.
@@ -206,7 +221,8 @@ between fittings (see also the [memo](#memo) fitting).
 
 ### Error Handling
 
-You may install a custom error handler pipe by specifying them using the system [onError](#onError) fitting.
+You may install a custom error handler pipe by specifying them using the system [onError](#onError) fitting. (As
+you might guess, this actually sets the _errorHandler property on context.)
 
 ## Fittings
 
@@ -234,7 +250,7 @@ The **input** may be a hash, array, or constant. The value or sub-values of the 
 A **reference** is a value populated either from data on the request or from the output of previous fittings on the
 pipe. It is defined like so:
 
-```
+```yaml
  key:            # the variable name (key) on context.input to which the value is assigned
    path: ''      # the variable to pick from context using [json path syntax](https://www.npmjs.com/package/jspath)
    default: ''   # (optional) value to assign if the referenced value is undefined
@@ -276,7 +292,7 @@ Selects output using [json path](https://www.npmjs.com/package/jspath) syntax.
 
 Saves the current context.output value to context[key]. Can be later retrieved via:
 
-```
+```yaml
 emit:
   name: key
   in: context
@@ -361,10 +377,12 @@ the fittingDef.config (if any) and create any static resources at this time.
 
 The creation function returns an execution function that will called during pipe flows. This function accepts a
 context object and a standard javascript asynchronous callback. When executed, this function should perform its
-intended function and then call the callback function with (error, response) when complete. Here's an example that
-will query Yelp for businesses near a location with an input of { latitude: n, longitude: n }:
+intended function and then call the callback function with (error, response) when complete. 
 
-```
+Here's an example fitting that will query Yelp for businesses near a location with an input of 
+{ latitude: n, longitude: n }:
+
+```js
 var Yelp = require('yelp');
 var util = require('util');
 
@@ -394,18 +412,22 @@ module.exports = function create(fittingDef, bagpipes) {
 
 #### Swagger fittings
 
+** Experimental **
+
 You can access Swagger APIs by simply loading that Swagger. A Swagger fitting expects this:
 
 * **type**: 'swagger'
 * **url**: url to the swagger definition
 
-```
+```yaml
  exampleSwaggerFitting:
    type: swagger
    url: http://petstore.swagger.io/v2/swagger.json
 ```
 
 #### Node-machine fittings
+
+** Experimental **
 
 A node-machine is a self-documenting component format that we've adapted to the a127 (see [http://node-machine.org]()).
 You can use a node-machine just by using 'npm install' and declaring the fitting. The fitting definition expects a
@@ -415,29 +437,32 @@ minimum of:
 * **machinepack**: the name of the machinepack
 * **machine**: the function name (or id) of the machine
 
-```
+```yaml
  exampleNodeMachineFitting:
    type: node-machine
    machinepack: machinepack-github
    machine: list-repos
 ```
 
-#### Controller fittings
+#### Connect-middleware fittings
 
-#### TODO: CHANGE
+** Experimental **
 
-Controller fittings merely provide a call to one of the controllers you've defined in your /controllers directory
-for use with swagger-tools router. However, given that these controllers probably interact directly with the response
-and aren't designed for use within the Bagpipes system, proceed with extreme caution.
+Connect-middleware fittings are special-purpose fittings provided as a convenience if you want to call out to any
+connect middleware that you have. Before calling a connect-middleware fitting, you must set a `request` and `response` 
+property on context with appropriate values from your request chain. These will be passed to the associated connect 
+middleware. Also, you must have passed in to the bagpipes configuration a value for connectMiddlewareDirs. 
+Be aware, however, as these controllers almost certainly interact directly with the response and aren't designed for 
+use within the Bagpipes system, either appropriately wrap the response object or use this option with caution.
 
-* **type**: 'controller'
-* **controller**: the name of the controller file in your controllers directory
-* **function**: the exported function to call on the controller
+* **type**: 'connect-middleware'
+* **module**: the name of the file or module to load from your middleware directory
+* **function**: the exported function to call on the middleware
 
-```
- exampleControllerFitting:
-   type: controller
-   controller: my_module
+```yaml
+ exampleMiddlewareFitting:
+   type: connect-middleware
+   module: my_module
    function: someFunction
 ```
 
