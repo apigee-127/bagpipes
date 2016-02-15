@@ -63,10 +63,14 @@ var pipesConfig = {};
 var pipes = bagpipes.create(pipesDefs, pipesConfig);
 var pipe = pipes.getPipe('HelloWorld');
 
+// log the output to standard out
+pipe.fit(function(context, cb) {
+  console.log(context.output);
+  cb(null, context);
+});
+
 var context = {};
 pipes.play(pipe, context);
-
-console.log(context.output);
 ```
 
 As you can see, the pipe in the hello world above is defined programmatically. This is perfectly ok, but 
@@ -85,10 +89,14 @@ var pipesDefs = yaml.safeLoad(fs.readFileSync('HelloWorld.yaml'));
 var pipes = bagpipes.create(pipesDefs, pipesConfig);
 var pipe = pipes.getPipe('HelloWorld');
 
+// log the output to standard out
+pipe.fit(function(context, cb) {
+  console.log(context.output);
+  cb(null, context);
+});
+
 var context = {};
 pipes.play(pipe, context);
-
-console.log(context.output);
 ```
 
 Either way, have fun!
