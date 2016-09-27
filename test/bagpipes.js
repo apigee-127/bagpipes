@@ -91,7 +91,7 @@ describe('bagpipes', function() {
     });
     
     describe('and the pipe flow fails', function() {
-      it('should pass context to the done', function(done){
+      it('should pass error and context to the done', function(done){
         var userFittingsDirs = [ path.resolve(__dirname, './fixtures/fittings') ];
         var pipe = [ 'test', 'test', 'emit', 'test', 'error' ];
         var bagpipes = Bagpipes.create({ pipe: pipe }, { userFittingsDirs: userFittingsDirs });
