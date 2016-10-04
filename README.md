@@ -1,5 +1,10 @@
 # Bagpipes
 
+[![Build Status](https://travis-ci.org/apigee-127/bagpipes.svg?branch=travis-ci)](https://travis-ci.org/apigee-127/bagpipes)
+
+[![Coverage Status](https://coveralls.io/repos/github/apigee-127/bagpipes/badge.svg?branch=master)](https://coveralls.io/github/apigee-127/bagpipes?branch=master)
+
+
 ### NOTE: THIS IS PRE-RELEASE SOFTWARE - SUBJECT TO CHANGE ###
 
 ** Quick Reference links: **
