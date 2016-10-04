@@ -3,3 +3,6 @@ node_js:
   - "node"
   - "4"
 sudo: false
+
+after_success:
+  npm run coveralls
