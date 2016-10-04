@@ -40,6 +40,7 @@
     "supertest": "^1.1.0"
   },
   "scripts" : {
+    "test": "node_modules/mocha/bin/_mocha -u exports -R spec test",
     "coverage": "node node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -u exports -R spec test",
     "coveralls": "node node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec test && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js --verbose"
   }
