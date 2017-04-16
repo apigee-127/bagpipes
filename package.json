@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Less code, more flow. Let's dance!",
   "main": "lib/index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "mocha test",
     "start": "node server.js"
