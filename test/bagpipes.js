@@ -26,6 +26,23 @@ describe('bagpipes', function() {
     });
   });
 
+  it('should load all user fittings', function(done) {
+    var dir = path.resolve(__dirname, './fixtures/fittings');
+    var userFittingsDirs = [ dir ];
+    fs.readdir(dir, function(err, files) {
+      if (err) { return done(err); }
+      var fittingNames = files.map(function(name) { return name.split('.')[0] });
+      var fittings = fittingNames.map(function (name) {
+        var fittingDef = {};
+        fittingDef[name] = 'nothing';
+        return fittingDef;
+      });
+      var bagpipes = Bagpipes.create({ fittings: fittings }, { userFittingsDirs: userFittingsDirs });
+      bagpipes.pipes.fittings.pipes.length.should.eql(fittingNames.length);
+      done();
+    });
+  });
+
   it('should run a pipe with a system fitting', function(done) {
     var pipe = [ { 'emit': 'something' } ];
     var bagpipes = Bagpipes.create({ pipe: pipe });
