@@ -62,6 +62,19 @@ describe('bagpipes', function() {
     done();
   });
 
+  it('should load pre-initialized fittings', function(done) {
+    var emitFitting = function create() {
+      return function (context, cb) {
+        cb(null, 'pre-initialized');
+    }};
+    var pipe = [ 'emit' ];
+    var bagpipes = Bagpipes.create({ pipe: pipe }, {fittings: { emit: emitFitting}});
+    var context = {};
+    bagpipes.play(bagpipes.getPipe('pipe'), context);
+    context.output.should.eql('pre-initialized');
+    done();
+  });  
+
   it('should allow user fittings to override system fittings', function(done) {
     var userFittingsDirs = [ path.resolve(__dirname, './fixtures/fittings') ];
     var pipe = [ 'test' ];
