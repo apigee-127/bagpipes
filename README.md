@@ -350,12 +350,8 @@ Select the values of an object as an array.
 
 Make a call to a URL.
 
-config keys:
-
-* baseUrl (optional)
-
 input keys:
-
+* baseUrl (optional)
 * url    (optional: default = context.output)
 * method (optional: default = get) (get, post, put, delete, patch, etc.)
 * params (optional) key/value pairs
