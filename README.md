@@ -352,7 +352,7 @@ Make a call to a URL.
 
 config keys:
 
-* baseUrl (optional)
+* baseUrl (optional: default = '')
 
 input keys:
 
@@ -360,6 +360,7 @@ input keys:
 * method (optional: default = get) (get, post, put, delete, patch, etc.)
 * params (optional) key/value pairs
 * headers (optional) key/value pairs
+* baseUrl (optional) overrides config.baseUrl
 
 output:
 
