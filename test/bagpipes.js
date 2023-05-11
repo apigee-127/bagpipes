@@ -105,5 +105,33 @@ describe('bagpipes', function() {
     context.error.should.be.an.Error;
     context.output.should.eql('test');
     done();
+  });
+  describe('when provided with a done(err,ctx) callback', function() {
+    describe('and the pipe flow succeeds', function() {
+      it('should pass context to the done', function(done){
+        var userFittingsDirs = [ path.resolve(__dirname, './fixtures/fittings') ];
+        var pipe = [ 'test', 'test', 'emit', 'test' ];
+        var bagpipes = Bagpipes.create({ pipe: pipe }, { userFittingsDirs: userFittingsDirs });
+        var context = {};
+        bagpipes.play(bagpipes.getPipe('pipe'), context, function(err, context) { 
+          context.output.should.eql('test');
+          done(err);
+        });
+      })
+    });
+    
+    describe('and the pipe flow fails', function() {
+      it('should pass error and context to the done', function(done){
+        var userFittingsDirs = [ path.resolve(__dirname, './fixtures/fittings') ];
+        var pipe = [ 'test', 'test', 'emit', 'test', 'error' ];
+        var bagpipes = Bagpipes.create({ pipe: pipe }, { userFittingsDirs: userFittingsDirs });
+        var context = {};
+        bagpipes.play(bagpipes.getPipe('pipe'), context, function(err, context) {
+          should(err).be.an.Error;
+          context.output.should.eql('test');
+          done()
+        });
+      })
+    })    
   })
 });
