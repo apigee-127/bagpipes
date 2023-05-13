@@ -10,10 +10,8 @@ const proxyquire = require('proxyquire');
 describe('http', function() {
 
   var fitting = proxyquire('../../lib/fittings/http', {
-    'machinepack-http': {
-      sendHttpRequest: function(options, cb) {
-        cb(null, options)
-      }
+    'axios': function() {
+      return Promise.resolve(null);
     }
   });
   
