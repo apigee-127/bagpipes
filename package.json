@@ -26,7 +26,6 @@
   "dependencies": {
     "async": "^2.6.4",
     "debug": "^2.1.2",
-    "form-data": "^4.0.4",
     "jspath": "^0.3.1",
     "machinepack-http": "^9.0.0",
     "mustache": "^2.1.3",
