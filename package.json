@@ -1,6 +1,6 @@
 {
   "name": "bagpipes",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Less code, more flow. Let's dance!",
   "main": "lib/index.js",
   "scripts": {
@@ -25,10 +25,10 @@
   "homepage": "https://github.com/apigee-127/bagpipes",
   "dependencies": {
     "async": "^2.6.4",
-    "debug": "^2.1.2",
-    "jspath": "^0.3.1",
+    "debug": "^2.6.9",
+    "jspath": "^0.3.4",
     "machinepack-http": "^9.0.0",
-    "mustache": "^2.1.3",
-    "pipeworks": "^1.3.0"
+    "mustache": "^2.3.2",
+    "pipeworks": "^1.3.1"
   }
 }
